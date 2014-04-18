@@ -3,13 +3,13 @@
 #Catherine Dworak, cfd7kv
 #CS 4810 Project 
 #Makefile
-CXX = clang++
+CXX = g++
 CXXFLAGS = -Wall
-LIBS = -lglut -lGL -lGLU -lm
+LIBS = -lglut -lGL -lGLU 
 OFILES = maze.o
 .SUFFIXES = .o .cpp
 
 main: $(OFILES)
-	$(CXX) $(CXXFLAGS) $(LIBS) $(OFILES)
+	$(CXX) $(CXXFLAGS) $(OFILES) $(LIBS)
 clean:
 	/bin/rm -f *.o *~
