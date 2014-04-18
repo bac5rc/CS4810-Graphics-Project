@@ -20,7 +20,7 @@ typedef struct {
 	float z_far;
 } glutWindow;
 
-int t;
+unsigned int t;
 int height = 150;
 int width = 150;
 double damping = .1;
@@ -42,40 +42,24 @@ for (int i = 0; i < 150; i++) {
 }
 
 void init() {
-// Somewhere in the initialization part of your programâ¦
 glEnable(GL_LIGHTING);
 glEnable(GL_LIGHT0);
 
-// Create light components
 GLfloat ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
 GLfloat diffuseLight[] = { 0.0f, 0.0f, 0.8, 1.0f };
 GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 GLfloat position[] = { -1.5f, 1.0f, -4.0f, 1.0f };
 
-// Assign created components to GL_LIGHT0
 glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
 glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
 glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
 glLightfv(GL_LIGHT0, GL_POSITION, position);
-//GLfloat light_direction[] = {0,1,-1};
-/*glClearColor(1.0,1.0,1.0,0.0);
-//glViewPort(0,0,500,500);
-
-glMatrixMode(GL_PROJECTION);
-
-glLoadIdentity();
-
-//glOrtho(10,10,0,10,1,-1);
-
-glMatrixMode(GL_MODELVIEW);
-glLoadIdentity();
-*/
 glMatrixMode(GL_PROJECTION);		
     glViewport(0, 0, width, height);		
     glMatrixMode(GL_PROJECTION);			
     glLoadIdentity();					
     GLfloat aspect = (GLfloat) width / height;
-    gluPerspective(win.field_of_view_angle, aspect, win.z_near, win.z_far);	
+//    gluPerspective(win.field_of_view_angle, aspect, win.z_near, win.z_far);	
     glMatrixMode(GL_MODELVIEW);							
     glShadeModel( GL_SMOOTH );
     glClearDepth( 1.0f );						
@@ -139,10 +123,7 @@ drawLines(0);
 }
 
 void drawLines(int i) {
-t = t + 1;
-cout << t << "!!" << endl;
 int temp[150][150];
-//temp = new int[150][150];
 for (int i = 0; i < height; i++)
   for (int j= 0; j < width; j++)
     temp[i][j] = dest[i][j];
@@ -153,13 +134,10 @@ glColor3f(0,0,1);
 
 for (int x = 0; x < 150; x++) {
 	for (int y = 0; y < 149; y++) {
-//	int z1 = rand() % 100;
-//	int z2 = rand() % 100;
 	float x1 = (float)x*2/150;
 	x1 --;
 	float y1 = (float)y*2/150;
 	y1--;
-//	int y1 = y;
 	float y2 = (y1+1);
 	y2 = y2*2/150;
 	y2--;
@@ -167,39 +145,32 @@ for (int x = 0; x < 150; x++) {
 	x2 = x2*2/150;
 	x2--;
 
-//	double z1 = sin((double)x1*y1 * M_PI / 180);
-	double z1 = dest[x][y];
-	double z2 = dest[x][y+1];
+	double z1 = dest[x][y] % 150;
+	z1 = z1*2/150;
+	z1--;
+	double z2 = dest[x][y+1] % 150;
+	z2 = z2*2/150;
+	z1--;
 	t+=1;
-//	cout << z1 << " " << z2 << endl;
-//	cout << x1 << " " << y1 << endl;
 glBegin(GL_QUADS);
-//	nomal = [y1*z2-z1*y2, z1*x2-x1*z2, x1*y2-y1*x2]
 	double normX = y1*z2-z1*y2;
 	double normY = z1*x2-x1*z2;
 	double normZ = x1*y2-y1*x2;
 	glNormal3f(normX,normY,normZ);
-	glVertex3f(x1,0,y1);
-//	glNormal3f(1,0,z1);
+	glVertex3f(x1,0,y);
 //	glVertex3f(x1,y1,z1);
-//	glNormal3f(0,1,1);
-	glVertex3f(x2,z1,y1);
+	glVertex3f(x2,z1,y);
 
 //	glVertex2f(x1,y1);
-//	glNormal3f(0,1,1);
 //	glVertex3f(x2,y1,0);
 
-//	glNormal3f(0,1,1);
 //	glVertex3f(x2,y2,0);
 
-//	glNormal3f(0,1,1);
 //	glVertex3f(x2,y2,z2);
 
 
-//	glNormal3f(1,0,z2);
-	glVertex3f(x1,z2,y2);
-//	glNormal3f(0,1,1);
-	glVertex3f(x1,0,y2);
+	glVertex3f(x1,z2,y-1);
+	glVertex3f(x1,0,y-1);
 glEnd();
 }
 }
@@ -210,19 +181,23 @@ light();
 glFlush();
 
 int temp2[150][150];
-//temp2 = new int[150][150];
 for (int i = 0; i < height; i++)
   for (int j= 0; j < width; j++)
     temp2[i][j] = dest[i][j];
-//dest = source;
 for (int i = 0; i < height; i++)
   for (int j= 0; j < width; j++)
     dest[i][j] = source[i][j];
 for (int i = 0; i < height; i++)
   for (int j= 0; j < width; j++)
     source[i][j] = temp2[i][j];
-//print(source);
-//source = temp2;
+}
+
+void update(int value) {
+t+= 1;
+cout << t << "!!" << endl;
+glutPostRedisplay();
+glutTimerFunc(5, update, 0);
+
 }
 
 int main(int argv, char** argc) {
@@ -233,8 +208,6 @@ glEnable(GL_LIGHT0);
 glEnable(GL_LIGHT1);
 glEnable(GL_LIGHT2);
 t= 0;
-//source = new int[150][150];
-//dest = new int[150][150];
 int rand_num = rand() % 100;
 rand_num = rand() % (height*width);
 int x = rand()%(height-rand_num);
@@ -253,7 +226,6 @@ for (int i = 0 ; i < rand_num; i++) {
 	int assign = rand() % 1000;
 	dest[x][y] = assign;
 }
-//print(source);
 win.width = 150;
 	win.height = 150;
 	win.title = "OpenGL/GLUT Test";
@@ -267,7 +239,7 @@ glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 glutCreateWindow("hello");
 init();
 glutDisplayFunc(displayGrid);
-glutTimerFunc(5, drawLines,0);
+glutTimerFunc(5, update,0);
 glutMainLoop();
 return 0;
 }
