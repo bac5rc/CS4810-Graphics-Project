@@ -23,7 +23,7 @@ typedef struct {
 
 glutWindow win;
 double angle;
-double damping = .1;
+double damping = 1;
 float source[150][150];
 float dest[150][150];
 int minHeight = 10;
@@ -31,7 +31,7 @@ int t = 0;
 void drawGrid();
 int height = 150; //change!
 int width = 150; //change!
-int dropHeight = 2;
+int dropHeight = 50;
 int dropX = 50;
 int dropY = 1;
 float translate = 0.0;
