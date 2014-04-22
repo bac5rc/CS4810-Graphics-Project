@@ -24,16 +24,16 @@ typedef struct {
 glutWindow win;
 double angle;
 double damping = .1;
-int source[100][100];
-int dest[100][100];
+float source[150][150];
+float dest[150][150];
 int minHeight = 10;
 int t = 0;
 void drawGrid();
-int height = 100; //change!
-int width = 100; //change!
-int dropHeight = 100;
+int height = 150; //change!
+int width = 150; //change!
+int dropHeight = 2;
 int dropX = 50;
-int dropY = 10;
+int dropY = 1;
 float translate = 0.0;
 void display()
 {
@@ -53,12 +53,13 @@ void display()
   glBegin(GL_QUADS);
 
   //floor
+  /*
   glColor3f(0.25, 0.25, 0.85);
   glVertex3f(-1.0f, -1.0f, -1.0f);
   glVertex3f(3.0f, -1.0f, -1.0f);
   glVertex3f(3.0f, -1.0f, 1.0f);
   glVertex3f(-1.0f, -1.0f, 1.0f);
-
+*/
   //left wall
   glColor3f(0.85, 0.25, 0.25);
   glVertex3f(-1.0f, -1.0f, 1.0f);
@@ -91,13 +92,13 @@ void display()
 void update(int value)
 {
   //  glTranslatef(-1.0f, 0.0, 0.0);
-  //glRotatef(90, 0.0f, 0.0f, 0.0f);
-  /*angle += 1;
+  /*glRotatef(90, 0.0f, 0.0f, 0.0f);
+  angle += 1;
   if(angle > 360)
     {
       angle = 0;
     }*/
-   if(translate < 8.0)
+  if(translate < 8.0)
     {
       translate += 0.1;
     }
@@ -170,7 +171,7 @@ int main(int argc, char **argv)
   //glutIdleFunc( makeMaze );									// register Idle Function
 //  initialize();
   //drawGrid();
-  glutTimerFunc(5, update, 0);
+  glutTimerFunc(10, update, 0);
   glutTimerFunc(2000, updateR, 0);
   translate = 0.0;
   angle = 0;
@@ -178,7 +179,7 @@ int main(int argc, char **argv)
   return 0;
 }
 
-void updateHeights(int source[100][100], int dest[100][100], bool updated[100][100]) {
+void updateHeights(float source[150][150], float dest[150][150], bool updated[150][150]) {
   if (t % 23 == 0) {
 /*    unsigned int rand_num = rand() % 100;
     unsigned int x = rand()%(height);
@@ -205,11 +206,11 @@ void updateHeights(int source[100][100], int dest[100][100], bool updated[100][1
 }
 
 void drawGrid() {
-  int temp[100][100];
+ // int temp[100][100];
   /*for (int i = 0; i < height; i++)
     for (int j= 0; j < width; j++)
     temp[i][j] = dest[i][j];*/
-  bool updated[100][100];
+  bool updated[150][150];
   updateHeights(dest, source,updated);
 
   glClear(GL_COLOR_BUFFER_BIT);
@@ -217,28 +218,29 @@ void drawGrid() {
   for (int x = 0; x < height; x++) {
     for (int y = 0; y < width-1; y++) {
       if (!updated[x][y] && !updated[x][y+1]) continue;
-      float x1 = (float)x*2/100;
+      float x1 = (float)x*2/50;
       x1 --;
 //      x1 *= 3;
-      float y1 = (float)y*2/100;
+      float y1 = (float)y*2/50;
       y1--;
-      y1 *= 3;
+     // y1 *= 3;
       float y2 = (y1+1);
-      y2 = y2*2/100;
+      y2 = y2*2/50;
       y2--;
-      y2 *= 3;
+     // y2 *= 3;
       float x2 = (x1+1);
-      x2 = x2*2/100;
+      x2 = x2*2/50;
       x2--;
     //  x2 *= 3;
 
-      double z1 = dest[x][y] % 100;
-      z1 = z1*2/100;
+      double z1 = dest[x][y];
+      z1 = z1*2/150;
       z1--;
       //z1 *= 3;
-      double z2 = dest[x][y+1] % 100;
-      z2 = z2*2/100;
+      double z2 = dest[x][y+1];
+      z2 = z2*2/150;
       z2--;
+      //cout << z1 << " ";
       //z2 *= 3;
       t+=1;
       glBegin(GL_QUADS);
@@ -248,24 +250,24 @@ void drawGrid() {
       double normZ = x1*z2-z1*x2;
       glNormal3f(normX,normY,normZ);
       //face 1 -- x1
-      glVertex3f(x1,0.0f,y1);
+      glVertex3f(x1,-1.0f,y1);
       glVertex3f(x1,z1,y1);
       glVertex3f(x1,z2,y2);
-      glVertex3f(x1,0.0f,y2);
+      glVertex3f(x1,-1.0f,y2);
       //face 2 -- x2
       glVertex3f(x2,z1,y1);
-      glVertex3f(x2,0,y1);
-      glVertex3f(x2,0,y2);
+      glVertex3f(x2,-1.0f,y1);
+      glVertex3f(x2,-1.0f,y2);
       glVertex3f(x2,z2,y2);
       //face 3 -- y1
-      glVertex3f(x1,0.0f,y1);
+      glVertex3f(x1,-1.0f,y1);
       glVertex3f(x1,z1,y1);
       glVertex3f(x2,z1,y1);
-      glVertex3f(x2,0,y1);
+      glVertex3f(x2,-1.0f,y1);
       //face 4 -- y2
       glVertex3f(x1,z2,y2);
-      glVertex3f(x1,0.0f,y2);
-      glVertex3f(x2,0,y2);
+      glVertex3f(x1,-1.0f,y2);
+      glVertex3f(x2,-1.0f,y2);
       glVertex3f(x2,z2,y2);
       //FACE 5 -- z1
       glVertex3f(x1,z1,y1);
@@ -291,12 +293,11 @@ void drawGrid() {
 
   glFlush();
 
-  int temp2[100][100];
   for (int i = 0; i < height; i++) {
     for (int j= 0; j < width; j++) {
-      temp2[i][j] = dest[i][j];
+      float temp2 = dest[i][j];
       dest[i][j] = source[i][j];
-      source[i][j] = temp2[i][j];
+      source[i][j] = temp2;
     }
   }
 }
