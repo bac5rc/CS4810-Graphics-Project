@@ -23,7 +23,7 @@ typedef struct {
 
 glutWindow win;
 double angle;
-double damping = 1;
+double damping = .75;
 float source[150][150];
 float dest[150][150];
 int minHeight = 10;
@@ -31,10 +31,14 @@ int t = 0;
 void drawGrid();
 int height = 150; //change!
 int width = 150; //change!
-int dropHeight = 50;
-int dropX = 50;
-int dropY = 1;
+int dropHeight = 20;
+int dropX = 75;
+int dropY = 75;
 float translate = 0.0;
+
+
+
+
 void display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -171,7 +175,7 @@ int main(int argc, char **argv)
   //glutIdleFunc( makeMaze );									// register Idle Function
 //  initialize();
   //drawGrid();
-  glutTimerFunc(10, update, 0);
+  glutTimerFunc(50, update, 0);
   glutTimerFunc(2000, updateR, 0);
   translate = 0.0;
   angle = 0;
@@ -180,6 +184,7 @@ int main(int argc, char **argv)
 }
 
 void updateHeights(float source[150][150], float dest[150][150], bool updated[150][150]) {
+  float delta = .00001; //some small number to account for floating point
   if (t % 23 == 0) {
 /*    unsigned int rand_num = rand() % 100;
     unsigned int x = rand()%(height);
@@ -192,11 +197,12 @@ void updateHeights(float source[150][150], float dest[150][150], bool updated[15
   {
     for (int i = 1; i < height-1; i++) {
       for (int j = 1; j < width-1; j++) {
-	int temp = dest[i][j];
+	float temp = dest[i][j];
 	dest[i][j] = (source[i-1][j] + source[i+1][j] +
 		      source[i][j-1] + source[i][j+1]) / 2 - dest[i][j];
-	dest[i][j] = (int)(dest[i][j] * damping);
-	if (temp != dest[i][j]) 
+	dest[i][j] = (dest[i][j] * damping);
+	//if (temp - dest[i][j] < delta)  
+	if ((int)temp != (int)dest[i][j])
 		updated[i][j] = true;
 	else
 		updated[i][j] = false;
@@ -289,7 +295,6 @@ void drawGrid() {
   }
 
 
-  //light();
 
   glFlush();
 
