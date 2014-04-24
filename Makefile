@@ -4,9 +4,9 @@
 #CS 4810 Project 
 #Makefile
 CXX = g++
-CXXFLAGS = -Wall
+CXXFLAGS = -Wall -O2
 LIBS = -lglut -lGL -lGLU 
-OFILES = maze.o
+OFILES = project.o
 .SUFFIXES = .o .cpp
 
 main: $(OFILES)
