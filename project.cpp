@@ -29,6 +29,17 @@ typedef struct {
   float z_far;
 } glutWindow;
 
+struct raindrop {
+  float x;
+  float y;
+  float z;
+  float life;
+  float fade;
+  float velocity;
+  float acceleration;
+  bool alive;
+} rain;
+
 glutWindow win;
 double angle;
 double damping = .95;
@@ -37,6 +48,8 @@ float dest[150][150];
 int minHeight = 10;
 int t = 0;
 void drawGrid();
+void drawRain();
+raindrop rains[1000];
 int height = 150; //change!
 int width = 150; //change!
 int dropHeight = 10;
@@ -121,7 +134,7 @@ void displayMaze()
   glRotatef(180, 0.0f, 1.0f, 0.0f);
   glScalef(0.5f, 0.5f, 0.5f);
   glPushMatrix();
-
+ 
   drawGrid();
 	glEnable(GL_TEXTURE_2D);
    	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
@@ -249,10 +262,11 @@ void display()
   glTranslatef(rotateComp8, 0.0f, 0.0f);
   glTranslatef(0.0f, 0.0f, -1 * translate9);
   drawGrid();
-	glEnable(GL_TEXTURE_2D);
-   	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-   	glBindTexture(GL_TEXTURE_2D, texName);
-  
+  drawRain();
+  glEnable(GL_TEXTURE_2D);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+  glBindTexture(GL_TEXTURE_2D, texName);
+  //drawRain();
   glBegin(GL_QUADS);
 /*
   //floor
@@ -338,8 +352,8 @@ void display()
   glPopMatrix();
   glPushMatrix();
   glutSwapBuffers();
-	glFlush();
-   glDisable(GL_TEXTURE_2D);
+  glFlush();
+  glDisable(GL_TEXTURE_2D);
 }
 
 void t1(int value)
@@ -430,7 +444,7 @@ void r4(int value)
     {
       angle4 += 1;
     }
-  if (rotateComp4 <= 2.0 && angle4 >= 45)
+  if (rotateComp4 <= 2.0 && angle4 >= 10)
     {
       rotateComp4 += 0.1;
     }
@@ -478,7 +492,7 @@ void r6(int value)
     {
       angle6 += 1;
     }
-  if (rotateComp6 <= 1.0)
+  if (rotateComp6 <= 1.0 && angle6 >= 45)
     {
       rotateComp6 += 0.1;
     }
@@ -526,7 +540,7 @@ void r8(int value)
     {
       angle8 += 1;
     }
-  if (rotateComp8 <= 3.0 && angle8 >= 45)
+  if (rotateComp8 <= 3.0 && angle8 >= 20)
     {
       rotateComp8 += 0.1;
     }
@@ -536,7 +550,7 @@ void r8(int value)
 
 void t9(int value)
 {
-  if (translate9 <= 8.0)
+  if (translate9 <= 5.0)
     {
       translate9 += 0.1;
     }
@@ -563,6 +577,50 @@ void updateR(int value)
   glutPostRedisplay();
   glutTimerFunc(5, updateR, 0);
 }
+//RAIN IS HERE
+float decel = 2.0;
+void initRain(int i)
+{
+  rains[i].alive = true;
+  rains[i].x = (float)(rand() % 8) - 5;
+  rains[i].y = 3.0;
+  rains[i].z = (float)(rand() % 8) - 2;
+  rains[i].fade = float(rand() % 100)/1000.0f + 0.003f;
+  rains[i].life = 2.0;
+  rains[i].velocity = 0.0;
+  rains[i].acceleration = -0.8;
+}
+void drawRain()
+{
+  float xPos;
+  float yPos;
+  float zPos;
+  for (int i = 0; i < 1000; i = i + 1)
+    {
+      if(rains[i].alive == true)
+	{
+	  xPos = rains[i].x;
+	  yPos = rains[i].y;
+	  zPos = rains[i].z;
+	  glColor3f(0.5, 0.5, 1.0);
+	  glBegin(GL_LINES);
+	  glVertex3f(xPos, yPos, zPos);
+	  glVertex3f(xPos, yPos + 0.3, zPos);
+	  glEnd();
+	  rains[i].y += rains[i].velocity/(decel * 800);
+	  rains[i].velocity += rains[i].acceleration;
+	  rains[i].life -= rains[i].fade;
+	  if (rains[i].y <= -3.0)
+	    {
+	      rains[i].life = 0.0;
+	  }
+	  if(rains[i].life < 0)
+	    {
+	      initRain(i);
+	    }
+	}
+    }
+}
 
 void initialize () 
 {
@@ -572,6 +630,10 @@ void initialize ()
       source[x][y] = minHeight;
       dest[x][y] = minHeight;
     }
+    for (int i = 0; i < 1000; i++)
+      {
+	initRain(i);
+      }
 
   }
 //  source[dropX][dropY] = minHeight+dropHeight;
@@ -591,19 +653,19 @@ void initialize ()
   glDepthFunc( GL_LEQUAL );
   glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );		
   glClearColor(0.0, 0.0, 0.0, 1.0);	
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	makeBrickWall();
-   	glGenTextures(1, &texName);
-   	glBindTexture(GL_TEXTURE_2D, texName);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-   	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-   	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, 
-                   GL_NEAREST);
-   	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, 
-                   GL_NEAREST);
-   	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, 
-                imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
-                texImage);					
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  makeBrickWall();
+  glGenTextures(1, &texName);
+  glBindTexture(GL_TEXTURE_2D, texName);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, 
+		  GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, 
+		  GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, 
+	       imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
+	       texImage);					
 }
 
 int main(int argc, char **argv) 
@@ -613,8 +675,8 @@ int main(int argc, char **argv)
   win.height = 480;
   win.title = "CS 4810 Project: Maze Walkthrough";
   win.field_of_view_angle = 45;
-  win.z_near = 1.0f;
-  win.z_far = 500.0f;
+  win.z_near = 0.5f;
+  win.z_far = 400.0f;
 
   // initialize and run program
   glutInit(&argc, argv);                                      // GLUT initialization
@@ -629,29 +691,26 @@ int main(int argc, char **argv)
   glutDisplayFunc(display);									// register Display Function
   initialize();
 
-  //glutIdleFunc( makeMaze );									// register Idle Function
-//  initialize();
-  //drawGrid();
   glutTimerFunc(2, update, 0);
   glutTimerFunc(5, t1, 0);
   glutTimerFunc(1000, r1, 0);
-  glutTimerFunc(2500, t2, 0);
-  glutTimerFunc(4000, r2, 0);
-  glutTimerFunc(5500, t3, 0);
-  glutTimerFunc(6000, r3, 0);
-  glutTimerFunc(6500, t4, 0);
-  glutTimerFunc(8000, r4, 0);
-  glutTimerFunc(9500, t5, 0);
-  glutTimerFunc(11500, r5, 0);
-  glutTimerFunc(13500, t6, 0);
-  glutTimerFunc(15000, r6, 0);
-  glutTimerFunc(17000, t7, 0);
-  glutTimerFunc(18000, r7, 0);
-  glutTimerFunc(20000, t8, 0);
-  glutTimerFunc(21000, r8, 0);
-  glutTimerFunc(23000, t9, 0);
-
-  glutMainLoop();												// run GLUT mainloop
+  glutTimerFunc(3000, t2, 0);
+  glutTimerFunc(5000, r2, 0);
+  glutTimerFunc(7000, t3, 0);
+  glutTimerFunc(9000, r3, 0);
+  glutTimerFunc(11000, t4, 0);
+  glutTimerFunc(13000, r4, 0);
+  glutTimerFunc(15000, t5, 0);
+  glutTimerFunc(17000, r5, 0);
+  glutTimerFunc(19000, t6, 0);
+  glutTimerFunc(21000, r6, 0);
+  glutTimerFunc(23000, t7, 0);
+  glutTimerFunc(25000, r7, 0);
+  glutTimerFunc(27000, t8, 0);
+  glutTimerFunc(29000, r8, 0);
+  glutTimerFunc(31000, t9, 0);
+  //glutTimerFunc(33000, drawTeapot, 0);
+  glutMainLoop();												
   return 0;
 }
 //source[x][z]
@@ -683,7 +742,6 @@ void updateHeights(float source[150][150], float dest[150][150], bool updated[15
     }
   }
 }
-
 void drawGrid() {
  // int temp[100][100];
   /*for (int i = 0; i < height; i++)
