@@ -581,14 +581,18 @@ int main(int argc, char **argv)
   glutMainLoop();												// run GLUT mainloop
   return 0;
 }
-
+//source[x][z]
 void updateHeights(float source[150][150], float dest[150][150], bool updated[150][150]) {
   float delta = .00001; //some small number to account for floating point
 
   if (true) {
+    int drops = rand() % 5;
+    for (int d = 0; d < drops;d++) {
     int dropX_rand = rand() % 150;
     int dropY_rand = rand() % 150;
-    source[dropX_rand][dropY_rand] = source[dropX][dropY] + dropHeight;
+    int drop_delta = rand() % 10;
+    source[dropX_rand][dropY_rand] = source[dropX][dropY] + dropHeight + drop_delta;
+}
 //    cout << "drop!" << endl;
   }
   {
