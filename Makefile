@@ -6,7 +6,7 @@
 CXX = g++
 CXXFLAGS = -Wall
 LIBS = -lglut -lGL -lGLU 
-OFILES = maze.o
+OFILES = project.o
 .SUFFIXES = .o .cpp
 
 main: $(OFILES)
